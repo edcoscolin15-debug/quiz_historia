@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de História Pro</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #d35400;
+            --bg: #f2f4f7;
+            --card-bg: #ffffff;
+            --text: #34495e;
+            --success: #62c370;
+            --error: #e74c3c;
+            --neutral: #7f8c8d;
+            --selected: #3498db;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            padding: 20px;
+            margin: 0;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container-global {
+            max-width: 1100px;
+            margin: auto;
+            width: 100%;
+            position: relative; /* Necessário para os botões absolute */
+            padding-top: 60px;  /* Espaço para evitar sobreposição */
+        }
+
+        /* Controle de Telas */
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        /* --- CLASSE PARA BOTÕES NO CANTO SUPERIOR ESQUERDO --- */
+        .btn-top-left {
+            position: absolute !important;
+            top: 15px !important;
+            left: 15px !important;
+            margin: 0 !important;
+            z-index: 1000 !important;
+            width: auto !important;
+            padding: 8px 15px !important;
+            font-size: 0.9rem !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* --- ESTILOS DA TELA DE MENU --- */
+        .menu-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        .menu-title {
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .file-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed var(--neutral);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .file-input-label {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        input[type="file"] { display: none; }
+
+        /* --- LAYOUT DO JOGO --- */
+        #tituloQuiz {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+        .container-quiz {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        #placar {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-width: 280px;
+        }
+        #placar h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            color: #34495e;
+        }
+        
+        /* Novo estilo para o Cronômetro em Destaque */
+        .timer-destaque {
+            background: #faeaea;
+            border: 1px solid #c0392b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .timer-destaque p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #c0392b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .time-box p {
+            margin: 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        /* Controles de Pontos do Placar */
+        .controles-pontos {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-pontuar-mais, .btn-pontuar-menos {
+            border: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        .btn-pontuar-mais { background: #27ae60; }
+        .btn-pontuar-menos { background: var(--error); }
+        .btn-pontuar-mais:hover, .btn-pontuar-menos:hover { opacity: 0.8; }
+
+        /* Navegação dentro do Placar */
+        .navegacao-placar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        #btnAnterior, #btnProximo { 
+            flex: 1;
+            background: #34495e; 
+            color: white; 
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        #btnAnterior:hover, #btnProximo:hover { background: #2c3e50; }
+        #btnAnterior:disabled, #btnProximo:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        #app {
+            flex: 3;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        #pergunta {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 22px;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .contador-header {
+            color: var(--error);
+            font-weight: bold;
+            margin-right: 10px;
+            padding: 3px 8px;
+            background-color: #fbeee6;
+            border-radius: 5px;
+            border: 1px solid var(--error);
+            font-size: 0.85em;
+        }
+        .badge-tema {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #2980b9;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        #alternativas button {
+            display: block;
+            width: 100%;
+            background: #eee;
+            font-size: 18px;
+            text-align: left;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        #alternativas button:hover:not(:disabled) { background: #e0e0e0; }
+        
+        .correta { background: var(--success) !important; color: white; }
+        .errada { background: var(--error) !important; color: white; }
+
+        .controles-auxiliares {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #btnDica { background: #f1c40f; color: var(--primary); padding: 12px 20px; margin: 5px; }
+
+        #dica, #explicacao {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-style: italic;
+            text-align: left;
+        }
+        #dica { background: #fef9e7; border-left: 5px solid #f1c40f; color: #7f8c8d; }
+        #dica:empty, #explicacao:empty { display: none; }
+        #explicacao { background: #fadbd8; border-left: 5px solid var(--error); color: #c0392b; font-style: normal; }
+        .aviso-tempo-esgotado { background: #fff3cd !important; border-left: 5px solid #ffc107 !important; color: #856404 !important; }
+
+        /* --- ESTILOS DO EDITOR AVANÇADO --- */
+        .editor-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .form-group label { font-weight: bold; color: var(--primary); }
+        .form-control {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .select-box {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #bdc3c7;
+            font-size: 16px;
+            background: white;
+            width: 100%;
+        }
+        .alt-block {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--selected);
+        }
+
+        @media (max-width: 768px) {
+            .container-quiz { flex-direction: column; }
+            #placar { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-global">
+
+    <div id="screen-menu" class="screen active">
+        <div class="menu-card">
+            <h1 class="menu-title">⚡ Gincana Histórica <br><small style="font-size: 1.2rem; color: var(--neutral)">Quiz Show Pro</small></h1>
+            
+            <div class="menu-buttons">
+                <button style="background: #27ae60; color: white; font-size: 18px; padding: 12px;" onclick="mudarTela('screen-intro')">🎮 Iniciar Quiz Show</button>
+                <button style="background: #e67e22; color: white; font-size: 18px; padding: 12px;" onclick="abrirEditor()">🛠️ Editor de Conteúdos e Perguntas</button>
+                
+                <div style="background: #eef2f3; padding: 15px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; text-align: left;">
+                    <label style="font-size: 14px; font-weight: bold; color: var(--primary);">📥 Exportar Banco de Questões:</label>
+                    <select id="select-exportar" class="select-box" style="margin: 8px 0;"></select>
+                    <button style="background: var(--primary); color: white; width: 100%; padding: 12px; margin: 0;" onclick="exportarJSON()">Gerar Arquivo (.json)</button>
+                </div>
+            </div>
+
+            <div class="file-box">
+                <span style="font-size: 15px; color: var(--text);">Possui um arquivo de perguntas pronto?</span><br>
+                <label for="import-file" class="file-input-label">📤 Importar Arquivo do Quiz</label>
+                <input type="file" id="import-file" accept=".json" onchange="importarJSON(event)">
+                <div id="file-status" style="font-size: 13px; margin-top: 8px; color: var(--success); font-weight: bold;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-intro" class="screen">
+        <button class="btn-top-left" style="background: #34495e; color: white;" onclick="voltarParaMenu()">⬅️ Voltar</button>
+
+        <div class="menu-card">
+            <h2 class="menu-title" style="margin-bottom: 15px;">🏛️ Quiz: A Odisséia do Conhecimento</h2>
+            
+            <p style="text-align: justify; color: var(--text); line-height: 1.6; font-size: 16px;">
+                O placar está zerado, a arena está montada e a História aguarda os seus mestres. Será que o seu time possui a sabedoria necessária para conquistar a glória e ser coroado como o grande guardião da memória humana?
+            </p>
+            
+            <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border: 1px solid #3498db; text-align: left; margin: 25px 0;">
+                <h3 style="color: var(--accent); margin-top: 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;">📜 Regras do Duelo</h3>
+                <ul style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.5; color: var(--primary);">
+                    <li style="margin-bottom: 10px;"><strong>Tempo de Resposta:</strong> Cada time terá <strong>60 segundos</strong> para analisar a pergunta e selecionar a alternativa correta. Caso o tempo acabar, o próximo time deverá responder, em caso de acerto, ganhará o ponto.</li>
+                    <li style="margin-bottom: 10px;"><strong>Pontuação:</strong> Cada questão valerá um ponto <strong>independente do nível de dificuldade</strong>. Fiquem atentos!</li>
+                    <li style="margin-bottom: 10px;"><strong>O Erro e a Oportunidade:</strong> Caso um time erre a questão, o <strong>ponto</strong> passa imediatamente para o <strong>time adversário</strong>.Respondam com cuidado.</li>
+                    <li><strong>Auxílio dos Sábios:</strong> Cada time tem direito a solicitar <strong>duas dicas</strong> durante toda a partida. Usem-nas com inteligência e estratégia, pois elas são recursos limitados.</li>
+                </ul>
+            </div>
+
+            <button style="background: #27ae60; color: white; width: 100%; font-size: 18px; padding: 15px;" onclick="abrirSelecaoTemas()">🚀 Iniciar Duelo e Escolher Tema</button>
+        </div>
+    </div>
+
+    <div id="screen-selecao" class="screen">
+        <button class="btn-top-left" style="background: #34495e; color: white;" onclick="mudarTela('screen-intro')">⬅️ Voltar</button>
+
+        <div class="menu-card">
+            <h2 class="menu-title">📚 Selecione o Tema do Quiz</h2>
+            <div id="lista-temas-botoes" class="menu-buttons"></div>
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <button class="btn-top-left" style="background: #c0392b; color: white;" onclick="mudarTela('screen-selecao')">📚 Trocar Missão</button>
+
+        <h1 id="tituloQuiz">Quiz de História</h1>
+        
+        <div class="container-quiz">
+            <div id="placar">
+                <h3>Status da Missão</h3>
+                
+                <div class="timer-destaque">
+                    <p id="tempo">⏱️ 60s</p>
+                </div>
+                
+                <div class="time-box">
+                    <p>Time A: <span id="placarA">0</span></p>
+                    <div class="controles-pontos">
+                        <button class="btn-pontuar-menos" onclick="alterarPonto('A', -1)">-Pts</button>
+                        <button class="btn-pontuar-mais" onclick="alterarPonto('A', 1)">+Pts</button>
+                    </div>
+                </div>
+                
+                <div class="time-box">
+                    <p>Time B: <span id="placarB">0</span></p>
+                    <div class="controles-pontos">
+                        <button class="btn-pontuar-menos" onclick="alterarPonto('B', -1)">-Pts</button>
+                        <button class="btn-pontuar-mais" onclick="alterarPonto('B', 1)">+Pts</button>
+                    </div>
+                </div>
+                
+                <div class="time-box">
+                    <p>Time C: <span id="placarC">0</span></p>
+                    <div class="controles-pontos">
+                        <button class="btn-pontuar-menos" onclick="alterarPonto('C', -1)">-Pts</button>
+                        <button class="btn-pontuar-mais" onclick="alterarPonto('C', 1)">+Pts</button>
+                    </div>
+                </div>
+
+                <div class="time-box">
+                    <p>Time D: <span id="placarD">0</span></p>
+                    <div class="controles-pontos">
+                        <button class="btn-pontuar-menos" onclick="alterarPonto('D', -1)">-Pts</button>
+                        <button class="btn-pontuar-mais" onclick="alterarPonto('D', 1)">+Pts</button>
+                    </div>
+                </div>
+                
+                <div class="navegacao-placar">
+                    <button id="btnAnterior" onclick="navegarQuestao(-1)">Anterior</button>
+                    <button id="btnProximo" onclick="navegarQuestao(1)">Próxima</button>
+                </div>
+            </div>
+
+            <div id="app">
+                <div id="badge-area" style="text-align: left;"></div>
+                <h2 id="pergunta">Carregando...</h2>
+                <div id="alternativas"></div>
+                
+                <div class="controles-auxiliares">
+                    <button id="btnDica" onclick="mostrarDicaRodada()">Mostrar dica</button>
+                </div>
+                
+                <div id="dica"></div>
+                <div id="explicacao"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-editor" class="screen">
+        <button class="btn-top-left" style="background: #34495e; color: white;" onclick="voltarParaMenu()">⬅️ Voltar</button>
+
+        <div class="editor-container">
+            <h2 style="color: var(--primary); margin-top: 0;">🛠️ Painel Editor de Perguntas</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <div class="form-group">
+                    <label>🆕 Criar Novo Tema Histórico:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="novo-tema-nome" class="form-control" placeholder="Ex: Feudalismo">
+                        <button style="background: #27ae60; color: white; margin: 0; padding: 10px 15px;" onclick="salvarNovoTemaLista()">Criar</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Filtrar Questões por Tema:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <select id="editor-filtro-tema" class="select-box" style="flex: 1;" onchange="atualizarSelectQuestoesEditor()"></select>
+                        <button style="background: var(--error); color: white; border: none; border-radius: 6px; padding: 0 15px; font-weight: bold; cursor: pointer;" title="Excluir o tema selecionado e todas as suas perguntas" onclick="deletarTemaInteiro()">🗑️ Excluir Tema</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Selecionar Questão Existente:</label>
+                <select id="editor-select-questao" class="select-box" onchange="carregarQuestaoNoFormulario()"></select>
+            </div>
+            
+            <button style="background: #2980b9; color: white; margin-bottom: 20px; padding: 10px 15px;" onclick="prepararNovaQuestao()">➕ Limpar campos e Criar Questão Nova</button>
+            
+            <hr style="border:0; border-top:1px solid #eee; margin-bottom: 20px;">
+
+            <div class="form-group">
+                <label>Tema da Questão:</label>
+                <select id="edit-tema" class="select-box"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Enunciado / Pergunta:</label>
+                <textarea id="edit-pergunta" class="form-control" rows="3" placeholder="Insira o texto da pergunta..."></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Nível de Dificuldade:</label>
+                    <select id="edit-nivel" class="select-box">
+                        <option value="Fácil">Fácil</option>
+                        <option value="Médio">Médio</option>
+                        <option value="Difícil">Difícil</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pontos da Questão:</label>
+                    <input type="number" id="edit-pontos" class="form-control" min="1" max="10">
+                </div>
+            </div>
+
+            <div id="alternativas-form-container" style="margin-top: 10px;"></div>
+
+            <div class="form-group" style="background: #fff9e6; padding: 10px; border-radius: 6px; border: 1px solid #f1c40f;">
+                <label style="color: #b7950b;">🎯 Qual a Alternativa CORRETA?</label>
+                <select id="edit-correta" class="select-box">
+                    <option value="0">Alternativa A</option>
+                    <option value="1">Alternativa B</option>
+                    <option value="2">Alternativa C</option>
+                    <option value="3">Alternativa D</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label>💡 Dica da Questão:</label>
+                <input type="text" id="edit-dica" class="form-control" placeholder="Pista para ajudar os alunos...">
+            </div>
+
+            <div class="form-group">
+                <label>📖 Explicação (Aparece após responder):</label>
+                <textarea id="edit-explicacao" class="form-control" rows="2" placeholder="Explique por que a alternativa está correta..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button style="flex: 2; background: #27ae60; color: white; padding: 15px; font-size: 16px;" onclick="salvarQuestaoEditor()">💾 Salvar no Banco de Dados</button>
+                <button style="flex: 1; background: var(--error); color: white; padding: 15px; font-size: 16px;" onclick="excluirQuestaoEditor()">🗑️ Excluir Questão</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let perguntas = [
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Qual foi o evento que marcou o início oficial da Revolução Francesa em 14 de julho de 1789?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Foi a invasão de uma famosa prisão em Paris.",
+            alternativas: ["Queda da Bastilha", "Execução do Rei Luís XVI", "Juramento do Jogo da Péla", "Aprovação da Declaração dos Direitos do Homem"],
+            correta: 0,
+            explicacao: "A Queda da Bastilha é considerada o marco inicial da Revolução, simbolizando o colapso do absolutismo monárquico francês."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Quem era o Rei da França quando a revolução estourou em 1789?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "Membro da dinastia Bourbon que acabou guilhotinado.",
+            alternativas: ["Luís XIV", "Luís XVI", "Luís XV", "Carlos X"],
+            correta: 1,
+            explicacao: "Luís XVI governava a França durante o estouro da revolução e foi executado em 1793."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Qual grupo político sentava-se à esquerda na Assembleia e defendia mudanças radicais e o fim da monarquia?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Liderados por figures como Robespierre.",
+            alternativas: ["Girondinos", "Jacobinos", "Sans-culottes", "Monarquistas Constitucionais"],
+            correta: 1,
+            explicacao: "Os Jacobinos representavam a ala radical de esquerda que assumiu o poder durante a fase do Terror."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Qual importante documento de 1789 estabeleceu que todos os homens nascem livres e iguais em direitos?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "Inspirado pelos ideais iluministas.",
+            alternativas: ["Declaração dos Direitos do Homem e do Cidadão", "Petição de Direito", "Código Civil Francês", "Carta de Franquia"],
+            correta: 0,
+            explicacao: "A Declaração dos Direitos do Homem e do Cidadão foi o documento basilar da revolução, inspirado no iluminismo e na independência dos EUA."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Qual lema tornou-se o maior símbolo dos ideais da Revolução Francesa?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "São três palavras que representam liberdade, igualdade e...",
+            alternativas: ["Paz, Pão e Terra", "Deus, Pátria e Família", "Liberdade, Igualdade, Fraternidade", "Ordem e Progresso"],
+            correta: 2,
+            explicacao: "'Liberté, Égalité, Fraternité' (Liberdade, Igualdade, Fraternidade) tornou-se a divisa oficial da República Francesa."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "A Reação Termidoriana, que derrubou Robespierre in 1794, deu início a qual fase de governo comandada pela alta burguesia?",
+            nivel: "Difícil",
+            pontos: 3,
+            dica: "Era governado por um colegiado de 5 diretores.",
+            alternativas: ["O Consulado", "O Diretório", "A Assembleia Nacional", "A Convenção Nacional"],
+            correta: 1,
+            explicacao: "O Diretório (1795-1799) foi a fase em que a alta burguesia girondina retomou o controle, enfrentando instabilidade até a ascensão de Napoleão."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Quem foi a famosa Rainha da França, de origem austríaca, executada na guilhotina durante a fase da Convenção?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "Casada com o Rei Luís XVI.",
+            alternativas: ["Maria Antonieta", "Catarina de Médici", "Maria de Médici", "Josefina de Beauharnais"],
+            correta: 0,
+            explicacao: "Maria Antonieta foi uma das figuras mais odiadas pelo povo revolucionário, acusada de esbanjamento e traição."
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "Qual foi o principal motivação para o Rei Luís XVI convocar os Estados Gerais em 1789?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "A França estava praticamente falida.",
+            alternativas: ["Para declarar guerra à Inglaterra", "Para resolver a grave crise financeira e criar novos impostos", "Para criar uma constituição republicana", "Para coroar Napoleão Bonaparte"],
+            correta: 1,
+            explicacao: "A monarquia estava à beira da falência e convocou os Estados Gerais para tentar impor impostos ao clero e à nobreza (Primeiro e Segundo Estados)."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Como se chama o golpe de estado de 1799 que levou Napoleão Bonaparte ao poder, encerrando a Revolução Francesa?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Recebe o nome do mês no calendário revolucionário.",
+            alternativas: ["Golpe do 18 de Brumário", "Golpe do 9 de Termidor", "Golpe de Estado de Floreal", "Marcha sobre Versalhes"],
+            correta: 0,
+            explicacao: "O Golpe do 18 de Brumário derrubou o Diretório e iniciou a era do Consulado sob a liderança de Napoleão."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "O que foi o Bloqueio Continental decretado por Napoleão em 1806?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Visava asfixiar economicamente uma ilha rival.",
+            alternativas: ["A proibição de comercializar com a Inglaterra", "O fechamento dos portos franceses para a América", "A invasão total de Portugal e Espanha", "Uma aliança militar com o Império Russo"],
+            correta: 0,
+            explicacao: "O Bloqueio Continental proibia as nações europeias de comercializarem com a Inglaterra, tentando quebrar a economia britânica pelo isolamento."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Qual foi o código de leis unificado criado por Napoleão em 1804 que consolidou conquistas burguesas como a igualdade jurídica e o direito à propriedade?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "Também conhecido como Código Civil dos Franceses.",
+            alternativas: ["Código de Hamurábi", "Código Napoleônico", "Constituição de Weimar", "Lei das Doze Tábuas"],
+            correta: 1,
+            explicacao: "O Código Napoleônico institucionalizou os princípios liberais da Revolução e serviu de base para legislações civis em todo o mundo."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Qual evento ocorrido na América foi diretamente acelerado pela invasão das tropas napoleônicas na Península Ibérica?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Causou a transferência de uma corte real para o Rio de Janeiro.",
+            alternativas: ["A Independência dos Estados Unidos", "A vinda da Família Real Portuguesa para o Brasil", "A Revolução Haitiana", "A Guerra do Paraguai"],
+            correta: 1,
+            explicacao: "Para fugir das tropas de Napoleão que invadiram Portugal (por desobedecer o Bloqueio Continental), a Corte Portuguesa fugiu para o Brasil em 1808."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "A trágica Campanha da Rússia em 1812 foi um divisor de águas. Qual tática os russos usaram para derrotar o exército de Napoleão?",
+            nivel: "Difícil",
+            pontos: 3,
+            dica: "Envolve destruir tudo pelo caminho para não deixar suprimentos.",
+            alternativas: ["Guerra de Trincheiras", "Guerra de Guerrilha", "Terra Arrasada", "Guerra Relâmpago (Blitzkrieg)"],
+            correta: 2,
+            explicacao: "Os russos recuavam e queimavam plantações e abrigos (tática da terra arrasada), deixando o exército francês sem suprimentos e à mercê do inverno."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Qual famosa batalha em 1815 marcou a derrota definitiva de Napoleão Bonaparte pelas forças aliadas europeias?",
+            nivel: "Fácil",
+            pontos: 1,
+            dica: "Ocorreu na atual região da Bélgica.",
+            alternativas: ["Batalha de Waterloo", "Batalha de Austerlitz", "Batalha de Trafalgar", "Batalha de Leipzig"],
+            correta: 0,
+            explicacao: "A Batalha de Waterloo selou a derrota final de Napoleão pelas mãos das forças britânicas e prussianas."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Após ser derrotado em 1814 e abdicar, para qual ilha no mar Mediterrâneo Napoleão foi exilado pela primeira vez antes de fugir?",
+            nivel: "Difícil",
+            pontos: 3,
+            dica: "Ele fugiu de lá para governar novamente por mais 100 dias.",
+            alternativas: ["Ilha de Santa Helena", "Ilha de Elba", "Ilha de Malta", "Córsega"],
+            correta: 1,
+            explicacao: "Napoleão foi exilado primeiro na Ilha de Elba. Em 1815 ele conseguiu fugir, retornando à França no período conhecido como os 'Cem Dias'."
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Qual foi o nome do congresso internacional organizado pelas potências absolutistas em 1814-1815 para restaurar as antigas fronteiras e dinastias após a queda de Napoleão?",
+            nivel: "Médio",
+            pontos: 2,
+            dica: "Ocorreu na capital do Império Austríaco.",
+            alternativas: ["Congresso de Viena", "Tratado de Tordesilhas", "Pacto de Varsóvia", "Conferência de Berlim"],
+            correta: 0,
+            explicacao: "O Congresso de Viena buscou restaurar o Antigo Regime e o mapa político europeu pré-Napoleão guiado pelo princípio da legitimidade."
+        }
+    ];
+
+    let listaTemas = [];
+    let questoesFiltradasJogo = [];
+    let atual = 0;
+    let pontos = { A: 0, B: 0, C: 0, D: 0 };
+    let respondido = false;
+    
+    let tempoRestante = 60;
+    let cronometro;
+
+    function mapearTemasDoBanco() {
+        const extraidos = [...new Set(perguntas.map(p => p.conteudo || "Geral"))];
+        extraidos.forEach(t => {
+            if(!listaTemas.includes(t)) listaTemas.push(t);
+        });
+    }
+
+    // --- LOCAL STORAGE ---
+    function salvarDadosDispositivo() {
+        const pacote = { perguntas: perguntas, listaTemas: listaTemas };
+        localStorage.setItem('gincana_quiz_data', JSON.stringify(pacote));
+    }
+
+    function carregarDadosDispositivo() {
+        const salvos = localStorage.getItem('gincana_quiz_data');
+        if (salvos) {
+            try {
+                const dados = JSON.parse(salvos);
+                if (dados.perguntas && dados.listaTemas) {
+                    perguntas = dados.perguntas;
+                    listaTemas = dados.listaTemas;
+                    return;
+                }
+            } catch (e) { console.error("Erro carregando cache", e); }
+        }
+        mapearTemasDoBanco();
+    }
+
+    // --- TELA DE SELEÇÃO ---
+    function abrirSelecaoTemas() {
+        mudarTela('screen-selecao');
+        const container = document.getElementById('lista-temas-botoes');
+        container.innerHTML = "";
+        
+        listaTemas.forEach(tema => {
+            const btn = document.createElement('button');
+            btn.style.background = "#3498db";
+            btn.style.color = "white";
+            btn.style.fontSize = "16px";
+            btn.style.padding = "12px";
+            btn.innerText = `📚 ${tema}`;
+            btn.onclick = () => iniciarQuizTema(tema);
+            container.appendChild(btn);
+        });
+    }
+
+    function iniciarQuizTema(tema) {
+        questoesFiltradasJogo = perguntas.filter(p => (p.conteudo || "Geral") === tema);
+        if(questoesFiltradasJogo.length === 0) { alert("Este tema não possui questões cadastradas!"); return; }
+        
+        atual = 0;
+        // Resetando os times A, B, C e D
+        pontos = { A: 0, B: 0, C: 0, D: 0 };
+        document.getElementById('placarA').innerText = 0;
+        document.getElementById('placarB').innerText = 0;
+        document.getElementById('placarC').innerText = 0;
+        document.getElementById('placarD').innerText = 0;
+        
+        mudarTela('screen-game');
+        carregarQuestaoRodada();
+    }
+
+    // --- LÓGICA DO JOGO ---
+    function mudarTela(id) {
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id !== 'screen-game') clearInterval(cronometro);
+    }
+
+    function voltarParaMenu() {
+        mudarTela('screen-menu');
+    }
+
+    function carregarQuestaoRodada() {
+        respondido = false;
+        clearInterval(cronometro);
+        
+        let p = questoesFiltradasJogo[atual];
+        const containerAlts = document.getElementById('alternativas');
+        
+        let labelLevel = `<span class="badge-tema" style="background:#e8f4f8; color:#2980b9;">Nível: ${p.nivel || 'Normal'}</span>`;
+        if (p.nivel === "Médio") labelLevel = `<span class="badge-tema" style="background:#fef9e7; color:#f39c12;">Nível: Médio</span>`;
+        if (p.nivel === "Difícil") labelLevel = `<span class="badge-tema" style="background:#fadbd8; color:#c0392b;">Nível: Difícil</span>`;
+
+        document.getElementById('badge-area').innerHTML = `
+            <span class="contador-header">Questão ${atual + 1} de ${questoesFiltradasJogo.length}</span>
+            <span class="badge-tema">💰 Pontos: ${p.pontos || 1}</span>
+            ${labelLevel}
+        `;
+        document.getElementById('pergunta').innerText = p.pergunta;
+        
+        document.getElementById('dica').innerHTML = "";
+        document.getElementById('explicacao').innerHTML = "";
+        document.getElementById('explicacao').classList.remove('aviso-tempo-esgotado');
+        
+        document.getElementById('btnAnterior').disabled = atual === 0;
+        document.getElementById('btnProximo').disabled = atual === questoesFiltradasJogo.length - 1;
+        
+        containerAlts.innerHTML = '';
+        p.alternativas.forEach((texto, i) => {
+            let btn = document.createElement('button');
+            btn.innerText = texto;
+            btn.onclick = () => verificarResposta(i, btn);
+            containerAlts.appendChild(btn);
+        });
+
+        iniciarTemporizador();
+    }
+
+    function verificarResposta(selecionada, btnClicked) {
+        if (respondido) return;
+        respondido = true;
+        clearInterval(cronometro);
+        
+        let p = questoesFiltradasJogo[atual];
+        let botoes = document.querySelectorAll('#alternativas button');
+        
+        if (selecionada === p.correta) {
+            btnClicked.classList.add('correta');
+            document.getElementById('explicacao').innerHTML = "✅ <strong>Acertou!</strong> " + (p.explicacao || "");
+        } else {
+            btnClicked.classList.add('errada');
+            botoes[p.correta].classList.add('correta');
+            document.getElementById('explicacao').innerHTML = "❌ <strong>Errou!</strong> O ponto vai para o adversário.<br>" + (p.explicacao || "");
+        }
+        
+        botoes.forEach(b => b.disabled = true);
+    }
+
+    function iniciarTemporizador() {
+        tempoRestante = 60;
+        let displayTimer = document.getElementById('tempo');
+        displayTimer.innerText = "⏱️ " + tempoRestante + "s";
+        displayTimer.style.color = "#c0392b";
+        
+        cronometro = setInterval(() => {
+            tempoRestante--;
+            displayTimer.innerText = "⏱️ " + tempoRestante + "s";
+            if(tempoRestante <= 10) displayTimer.style.color = "red";
+            
+            if(tempoRestante <= 0) {
+                clearInterval(cronometro);
+                // Mantém a questão aberta para o próximo time.
+                // Apenas interrompe o cronômetro e exibe o aviso.
+                respondido = false;
+                
+                let divExp = document.getElementById('explicacao');
+                divExp.style.display = "block";
+                divExp.classList.add('aviso-tempo-esgotado');
+                divExp.innerHTML = "⏰ <strong>O Tempo Esgotou!</strong><br>A rodada acabou, mas a questão permanece aberta. O próximo time deve responder imediatamente!";
+            }
+        }, 1000);
+    }
+
+    function mostrarDicaRodada() {
+        let p = questoesFiltradasJogo[atual];
+        document.getElementById('dica').innerHTML = "<strong>Dica:</strong> " + (p.dica || "Sem dicas para esta questão.");
+    }
+
+    function navegarQuestao(direcao) {
+        atual += direcao;
+        if(atual >= 0 && atual < questoesFiltradasJogo.length) {
+            carregarQuestaoRodada();
+        }
+    }
+
+    // --- NOVA LÓGICA DE PONTUAÇÃO POSITIVA E NEGATIVA ---
+    function alterarPonto(time, operacao) {
+        let p = questoesFiltradasJogo[atual];
+        
+        if (operacao > 0) {
+            // Se for positivo, adiciona os pontos definidos na questão
+            pontos[time] += (p.pontos || 1);
+        } else {
+            // Se for negativo, retira apenas 1 ponto conforme solicitado
+            pontos[time] -= 1;
+            // Impede que a pontuação fique negativa (opcional, mas recomendado para estudantes)
+            if (pontos[time] < 0) pontos[time] = 0;
+        }
+        
+        document.getElementById('placar' + time).innerHTML = pontos[time];
+    }
+
+    // ==========================================
+    // LÓGICA DO PAINEL EDITOR AVANÇADO
+    // ==========================================
+    function criarCamposAlternativasForm() {
+        const container = document.getElementById('alternativas-form-container');
+        container.innerHTML = "";
+        const letras = ["A", "B", "C", "D"];
+        for(let i=0; i<4; i++) {
+            container.innerHTML += `
+                <div class="alt-block">
+                    <label style="font-size:13px; font-weight:bold; color:var(--primary)">Texto da Alternativa ${letras[i]}:</label>
+                    <input type="text" id="edit-alt-${i}" class="form-control" style="margin-top:4px;" placeholder="Opção ${letras[i]}">
+                </div>
+            `;
+        }
+    }
+
+    function abrirEditor() {
+        criarCamposAlternativasForm();
+        atualizarFiltrosNoEditor();
+        atualizarSelectQuestoesEditor();
+        mudarTela('screen-editor');
+    }
+
+    function salvarNovoTemaLista() {
+        const campo = document.getElementById('novo-tema-nome');
+        const valor = campo.value.trim();
+        if(!valor) return;
+        if(listaTemas.includes(valor)) { alert("Tema já existe."); return; }
+        
+        listaTemas.push(valor);
+        campo.value = "";
+        
+        salvarDadosDispositivo();
+        atualizarSelectExportarMenu();
+        atualizarFiltrosNoEditor();
+        document.getElementById('edit-tema').value = valor;
+        alert(`Novo tema "${valor}" foi criado.`);
+    }
+
+    function atualizarFiltrosNoEditor() {
+        const filtroSelect = document.getElementById('editor-filtro-tema');
+        const atual = filtroSelect.value || "Todos";
+        let htmlFiltro = '<option value="Todos">✨ Ver Todas as Questões</option>';
+        listaTemas.forEach(t => htmlFiltro += `<option value="${t}">📚 ${t}</option>`);
+        filtroSelect.innerHTML = htmlFiltro;
+        if(listaTemas.includes(atual) || atual==="Todos") filtroSelect.value = atual;
+
+        const temaSelect = document.getElementById('edit-tema');
+        const tAtual = temaSelect.value;
+        let htmlTema = '';
+        listaTemas.forEach(t => htmlTema += `<option value="${t}">${t}</option>`);
+        temaSelect.innerHTML = htmlTema;
+        if(listaTemas.includes(tAtual)) temaSelect.value = tAtual;
+    }
+
+    function deletarTemaInteiro() {
+        const temaSelecionado = document.getElementById('editor-filtro-tema').value;
+        if (temaSelecionado === "Todos" || !temaSelecionado) {
+            alert("Selecione um tema específico no filtro acima para excluir.");
+            return;
+        }
+
+        if (confirm(`⚠️ ATENÇÃO!\nExcluir o tema "${temaSelecionado}" vai apagar TODAS as questões associadas a ele!\nDeseja mesmo continuar?`)) {
+            listaTemas = listaTemas.filter(t => t !== temaSelecionado);
+            perguntas = perguntas.filter(p => (p.conteudo || "Geral") !== temaSelecionado);
+            
+            salvarDadosDispositivo();
+            atualizarSelectExportarMenu();
+            atualizarFiltrosNoEditor();
+            atualizarSelectQuestoesEditor();
+            alert(`O tema "${temaSelecionado}" foi excluído com sucesso!`);
+        }
+    }
+
+    function atualizarSelectQuestoesEditor() {
+        const filtro = document.getElementById('editor-filtro-tema').value;
+        const selectQ = document.getElementById('editor-select-questao');
+        selectQ.innerHTML = "";
+        
+        let n = 1;
+        perguntas.forEach((p, idx) => {
+            const t = p.conteudo || "Geral";
+            if(filtro === "Todos" || t === filtro) {
+                selectQ.innerHTML += `<option value="${idx}">[${t}] ${n}. ${p.pergunta.substring(0,40)}...</option>`;
+                n++;
+            }
+        });
+        
+        if(selectQ.options.length === 0) { selectQ.innerHTML = '<option value="">Nenhuma pergunta encontrada...</option>'; }
+        carregarQuestaoNoFormulario();
+    }
+
+    function carregarQuestaoNoFormulario() {
+        const idx = document.getElementById('editor-select-questao').value;
+        if(idx === "" || !perguntas[idx]) return;
+
+        const p = perguntas[idx];
+        document.getElementById('edit-tema').value = p.conteudo || "Geral";
+        document.getElementById('edit-pergunta').value = p.pergunta;
+        document.getElementById('edit-nivel').value = p.nivel || "Fácil";
+        document.getElementById('edit-pontos').value = p.pontos || 1;
+        document.getElementById('edit-correta').value = p.correta || 0;
+        document.getElementById('edit-dica').value = p.dica || "";
+        document.getElementById('edit-explicacao').value = p.explicacao || "";
+        
+        for(let i=0; i<4; i++) {
+            document.getElementById(`edit-alt-${i}`).value = p.alternativas[i] || "";
+        }
+    }
+
+    function prepararNovaQuestao() {
+        const filtroAtual = document.getElementById('editor-filtro-tema').value;
+        if (filtroAtual !== "Todos") document.getElementById('edit-tema').value = filtroAtual;
+        
+        document.getElementById('editor-select-questao').value = "";
+        document.getElementById('edit-pergunta').value = "";
+        document.getElementById('edit-nivel').value = "Médio";
+        document.getElementById('edit-pontos').value = 1;
+        document.getElementById('edit-correta').value = 0;
+        document.getElementById('edit-dica').value = "";
+        document.getElementById('edit-explicacao').value = "";
+        for(let i=0; i<4; i++) document.getElementById(`edit-alt-${i}`).value = "";
+        
+        alert("Preencha os campos vazios e clique em Salvar para criar a nova questão.");
+    }
+
+    function salvarQuestaoEditor() {
+        const idx = document.getElementById('editor-select-questao').value;
+        const temaSel = document.getElementById('edit-tema').value;
+        const pergText = document.getElementById('edit-pergunta').value.trim();
+        
+        if(!pergText) { alert("O enunciado da pergunta é obrigatório!"); return; }
+        
+        const novaQuestao = {
+            conteudo: temaSel,
+            pergunta: pergText,
+            nivel: document.getElementById('edit-nivel').value,
+            pontos: parseInt(document.getElementById('edit-pontos').value) || 1,
+            alternativas: [],
+            correta: parseInt(document.getElementById('edit-correta').value),
+            dica: document.getElementById('edit-dica').value.trim(),
+            explicacao: document.getElementById('edit-explicacao').value.trim()
+        };
+        
+        for(let i=0; i<4; i++) {
+            const v = document.getElementById(`edit-alt-${i}`).value.trim();
+            if(!v) { alert(`A Alternativa ${String.fromCharCode(65+i)} não pode estar vazia.`); return; }
+            novaQuestao.alternativas.push(v);
+        }
+
+        if(idx === "") {
+            perguntas.push(novaQuestao);
+        } else {
+            perguntas[idx] = novaQuestao;
+        }
+
+        salvarDadosDispositivo();
+        atualizarSelectQuestoesEditor();
+        alert("Questão gravada no banco de dados com sucesso!");
+    }
+
+    function excluirQuestaoEditor() {
+        const idx = document.getElementById('editor-select-questao').value;
+        if(idx === "") { alert("Nenhuma questão selecionada."); return; }
+        
+        if(confirm("Confirma a exclusão definitiva desta pergunta?")) {
+            perguntas.splice(idx, 1);
+            salvarDadosDispositivo();
+            atualizarSelectQuestoesEditor();
+        }
+    }
+
+    // --- JSON IMPORT & EXPORT ---
+    function atualizarSelectExportarMenu() {
+        const combo = document.getElementById('select-exportar');
+        if(!combo) return;
+        let html = '<option value="Tudo">📦 Banco Completo (Todos os Temas)</option>';
+        listaTemas.forEach(t => html += `<option value="${t}">📚 Apenas: ${t}</option>`);
+        combo.innerHTML = html;
+    }
+
+    function exportarJSON() {
+        const alvo = document.getElementById('select-exportar').value;
+        let exportFases = perguntas;
+        let exportTemas = listaTemas;
+
+        if (alvo !== "Tudo") {
+            exportFases = perguntas.filter(p => (p.conteudo || "Geral") === alvo);
+            exportTemas = [alvo];
+        }
+
+        const dataPack = {
+            signature: "quiz_history_pro",
+            listaTemas: exportTemas,
+            perguntas: exportFases
+        };
+
+        const blob = new Blob([JSON.stringify(dataPack, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const filename = alvo === "Tudo" ? "banco_completo_quiz.json" : `banco_${alvo.replace(/\s+/g, '_')}.json`;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function importarJSON(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+                if(dados && Array.isArray(dados.perguntas)) {
+                    
+                    if(dados.listaTemas && Array.isArray(dados.listaTemas)) {
+                        dados.listaTemas.forEach(t => {
+                            if(!listaTemas.includes(t)) listaTemas.push(t);
+                        });
+                    }
+
+                    const temasImportados = dados.listaTemas || [];
+                    if(temasImportados.length > 0) {
+                        perguntas = perguntas.filter(p => !temasImportados.includes(p.conteudo || "Geral"));
+                    }
+                    
+                    perguntas = perguntas.concat(dados.perguntas);
+                    
+                    salvarDadosDispositivo();
+                    atualizarSelectExportarMenu();
+                    document.getElementById('file-status').innerText = "✅ Atualizado!";
+                    alert("Banco de dados mesclado e atualizado com sucesso!");
+                } else {
+                    alert("Arquivo Inválido ou formato incompatível.");
+                }
+            } catch (err) {
+                alert("Erro ao decodificar arquivo JSON.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    window.onload = () => {
+        carregarDadosDispositivo();
+        atualizarSelectExportarMenu();
+        mudarTela('screen-menu');
+    };
+</script>
+<footer>
+    <p style="text-align: center; font-size: 0.8em; color: #555; margin-top: 20px;">
+        Copyright &copy; 2026 Profº Edimar Coscolin. Todos os direitos reservados.
+    </p>
+</footer>
+</body>
+</html>
