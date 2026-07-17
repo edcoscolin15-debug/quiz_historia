@@ -22,7 +22,7 @@ Ao utilizar, acessar ou compartilhar este código e jogo, você concorda com os 
 
 Qualquer violação destes termos constitui infração de direitos autorais (Lei nº 9.610/98) e estará sujeita às medidas ilegalidades cabíveis.
 
-Para dúvidas ou permissões especiais, entre em contato através do e-mail: [edimar010@hotmail.com]
+Para dúvidas ou permissões especiais, entre em contato através do e-mail: edimar010@hotmail.com
 -->
 
 <!DOCTYPE html>
@@ -350,6 +350,90 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
             .container-quiz { flex-direction: column; }
             #placar { width: 100%; box-sizing: border-box; }
         }
+
+        /* --- ESTILOS DOS MODAIS DE TERMOS E GUIA --- */
+        .modal-container {
+            display: none; 
+            position: fixed; 
+            z-index: 9999; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.85); 
+            backdrop-filter: blur(3px);
+        }
+        .modal-conteudo-box {
+            background-color: #ffffff;
+            color: var(--text);
+            margin: 5% auto; 
+            padding: 30px; 
+            border-radius: 12px;
+            width: 90%; 
+            max-width: 800px;
+            max-height: 85vh; 
+            overflow-y: auto;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+            text-align: left;
+            position: relative;
+        }
+        .modal-conteudo-box h2, .modal-conteudo-box h3 {
+            color: var(--primary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .modal-conteudo-box h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .modal-conteudo-box p { margin-bottom: 12px; line-height: 1.5; font-size: 1.1em; }
+        .modal-conteudo-box ul, .modal-conteudo-box ol {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        .modal-conteudo-box li { margin-bottom: 10px; line-height: 1.4; font-size: 1.1em; }
+        .modal-conteudo-box a { color: #3498db; text-decoration: none; font-weight: bold; }
+        .modal-conteudo-box a:hover { text-decoration: underline; color: var(--accent); }
+        
+        .fechar-modal-x {
+            color: #aaa;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .fechar-modal-x:hover { color: var(--error); }
+        
+        .prompt-box {
+            background-color: #2c3e50;
+            color: #a8ff60;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1em;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #27ae60;
+            overflow-x: auto;
+        }
+
+        .botoes-topo-grid {
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 20px;
+        }
+        @media (max-width: 500px) {
+            .botoes-topo-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -361,6 +445,12 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
             <h1 class="menu-title">⚡ Gincana Histórica <br><small style="font-size: 1.2rem; color: var(--neutral)">Quiz Show Pro</small></h1>
             
             <div class="menu-buttons">
+                <!-- NOVOS BOTOES DE TERMOS E GUIA -->
+                <div class="botoes-topo-grid">
+                    <button style="background-color: #34495e; color: white; font-size: 16px; padding: 12px; margin: 0;" id="btnAbrirTermos">⚖️ Ler Termos de Uso</button>
+                    <button style="background-color: #2980b9; color: white; font-size: 16px; padding: 12px; margin: 0;" id="btnAbrirGuia">📖 Guia Prático</button>
+                </div>
+
                 <button style="background: #27ae60; color: white; font-size: 18px; padding: 12px;" onclick="mudarTela('screen-intro')">🎮 Iniciar Quiz Show</button>
                 <button style="background: #e67e22; color: white; font-size: 18px; padding: 12px;" onclick="abrirEditor()">🛠️ Editor de Conteúdos e Perguntas</button>
                 
@@ -563,6 +653,156 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
                 <button style="flex: 2; background: #27ae60; color: white; padding: 15px; font-size: 16px;" onclick="salvarQuestaoEditor()">💾 Salvar no Banco de Dados</button>
                 <button style="flex: 1; background: var(--error); color: white; padding: 15px; font-size: 16px;" onclick="excluirQuestaoEditor()">🗑️ Excluir Questão</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE TERMOS DE USO -->
+    <div id="modalTermos" class="modal-container">
+        <div class="modal-conteudo-box">
+            <span class="fechar-modal-x">&times;</span>
+            
+            <h2>Jogos Pedagógicos em HTML - Aulas de História</h2>
+            <p>Bem-vindo ao repositório de jogos educativos! Este projeto reúne diversas atividades interativas (Escape Room, Quiz, Tabuleiro, Campo minado, Agentes do Tempo) desenvolvidas para tornar o ensino de História mais dinâmico e envolvente, voltado especialmente para alunos do 6º ao 9º ano.</p>
+
+            <h3>🎮 Sobre os Projetos</h3>
+            <p>Estes materiais foram criados com foco na imersão dos alunos nos conteúdos pedagógicos de maneira gameficada. Todo o código foi construído utilizando HTML, CSS e JavaScript.</p>
+
+            <h3>🚀 Como Utilizar em Sala de Aula</h3>
+            <p>Para utilizar estes jogos com seus alunos, você não precisa baixar nenhum código.<br>Basta acessar os links hospedados e compartilhar com a turma:</p>
+            <ul>
+                <li><a href="https://edcoscolin15-debug.github.io/campo_minado_historia/" target="_blank">[Campo Minado]</a></li>
+                <li><a href="https://edcoscolin15-debug.github.io/escape-rom-historia/" target="_blank">[Escape Rom]</a></li>
+                <li><a href="https://edcoscolin15-debug.github.io/agentes_do_tempo_historia/" target="_blank">[Agentes do Tempo]</a></li>
+                <li><a href="https://edcoscolin15-debug.github.io/tabuleiro_historia/" target="_blank">[Tabuleiro]</a></li>
+                <li><a href="https://edcoscolin15-debug.github.io/quiz_historia/" target="_blank">[Quiz]</a></li>
+            </ul>
+
+            <h3>⚖️ Termos de Uso e Licenciamento (Atenção)</h3>
+            <p>Todo este material foi desenvolvido com muito esforço e é disponibilizado de forma 100% gratuita para fins pedagógicos e educacionais.</p>
+            
+            <p><strong>O que é PERMITIDO:</strong></p>
+            <ul>
+                <li>✅ Utilizar os jogos em sala de aula (projetores, laboratórios, lousas digitais).</li>
+                <li>✅ Compartilhar o link original do repositório ou do jogo com outros professores e alunos.</li>
+            </ul>
+
+            <p><strong>O que é PROIBIDO:</strong></p>
+            <ul>
+                <li>❌ Vender, alugar, sublicenciar ou cobrar qualquer tipo de acesso a este material.</li>
+                <li>❌ Hospedar este código em sites de terceiros com intuito de gerar receita (paywalls, anúncios, etc.).</li>
+                <li>❌ Alterar a estrutura do código para criar obras derivadas destinadas à distribuição.</li>
+                <li>❌ Remover os créditos de autoria e marcações de propriedade intelectual presentes no código-fonte e na interface.</li>
+            </ul>
+
+            <p><strong>Licença Oficial:</strong><br>
+            Este trabalho está licenciado sob a Licença Creative Commons Atribuição-NãoComercial-SemDerivações 4.0 Internacional (CC BY-NC-ND 4.0).</p>
+            <p>Para ver uma cópia desta licença, visite: <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">creativecommons.org/licenses/by-nc-nd/4.0/</a></p>
+
+            <h3>👨‍🏫 Autoria e Contato</h3>
+            <p>Desenvolvido por Edimar Coscolin, Professor de História.<br>
+            Contato / E-mail: <a href="mailto:edimar010@hotmail.com">edimar010@hotmail.com</a></p>
+
+            <button class="fechar-botao-rodape" style="background-color: var(--error); color: white; margin-top: 25px; padding: 15px; width: 100%; font-size: 1.2em;">Fechar Termos</button>
+        </div>
+    </div>
+
+    <!-- MODAL DO GUIA PRÁTICO -->
+    <div id="modalGuia" class="modal-container">
+        <div class="modal-conteudo-box">
+            <span class="fechar-modal-x">&times;</span>
+            
+            <h2>📖 Guia Prático de uso</h2>
+            <p>Este roteiro foi desenhado para que você domine todas as funcionalidades, garantindo que suas aulas sejam dinâmicas e seus dados estejam sempre seguros.</p>
+
+            <h3>1. Painel Inicial (Menu Principal)</h3>
+            <p>Ao abrir o arquivo no seu navegador (Chrome ou Edge), você encontrará quatro botões principais:</p>
+            <ul>
+                <li><strong>🎮 Iniciar Quiz Show:</strong> Acesso à lista de temas disponíveis para começar a partida.</li>
+                <li><strong>🛠️ Editor de Conteúdos e Perguntas:</strong> Acesso ao "Motor de Criação" (Editor), onde você gerencia o banco de dados.</li>
+                <li><strong>📥 Exportar Banco de Questões:</strong> Painel para gerar seus arquivos de backup (escolha "Tudo" ou apenas um tema específico).</li>
+                <li><strong>📤 Importar Arquivo do Quiz:</strong> Carrega arquivos .json que você criou ou salvou anteriormente.</li>
+            </ul>
+
+            <h3>2. O Ambiente do Jogo (Em Ação)</h3>
+            <p>Ao iniciar uma partida no seu tablet/celular Android, você verá o ambiente de jogo:</p>
+            <ul>
+                <li><strong>Placar Dinâmico:</strong> Localizado à esquerda, use os botões "+ Ponto" para registrar o progresso dos times 1, 2 ou 3 em tempo real.</li>
+                <li><strong>Cronômetro (60s):</strong> O tempo começa a contar automaticamente. Se chegar a zero, o tempo esgota e o sistema bloqueia as seleções.</li>
+                <li><strong>Alternativas:</strong> Escolha entre 4 opções. O sistema destaca em verde se acertar ou em vermelho se errar.</li>
+                <li><strong>Recursos Auxiliares:</strong>
+                    <ul>
+                        <li><strong>Mostrar Dica:</strong> Revela uma dica exclusiva para ajudar os alunos.</li>
+                        <li><strong>Explicação Histórica:</strong> Aparece automaticamente após a seleção da alternativa, funcionando como um gabarito comentado.</li>
+                    </ul>
+                </li>
+                <li><strong>Navegação:</strong> Use os botões "Anterior" e "Próxima" para transitar entre as questões do tema selecionado.</li>
+            </ul>
+
+            <h3>3. Editor de Conteúdos e Perguntas</h3>
+            <p>Aqui é onde você mantém o seu banco de questões sempre atualizado:</p>
+            <ol>
+                <li><strong>Criar Novo Tema:</strong> Digite o nome no campo "Criar Novo Tema Histórico" e clique em "Criar". O sistema salvará automaticamente.</li>
+                <li><strong>Filtragem:</strong> Use o filtro no topo para isolar um tema específico. Isso facilita a edição sem precisar navegar por todas as perguntas.</li>
+                <li><strong>🗑️ Excluir Tema:</strong> Se um tema não for mais necessário, selecione-o no filtro e clique em "🗑️ Excluir Tema". O sistema solicitará confirmação antes de apagar o conteúdo e todas as suas perguntas associadas.</li>
+                <li><strong>Editar/Adicionar Perguntas:</strong> Selecione uma questão para editar ou clique em "Criar Nova Pergunta do Zero". Preencha o enunciado, as 4 alternativas, indique a correta e insira a dica e explicação.</li>
+                <li><strong>💾 Salvar:</strong> Sempre clique em "Salvar Pergunta" para garantir que as alterações sejam gravadas na memória do seu dispositivo.</li>
+            </ol>
+
+            <h3>4. Exportação e Importação (.json)</h3>
+            <p>Esta é a sua ferramenta de segurança:</p>
+            <ul>
+                <li><strong>Exportar:</strong> Escolha se quer baixar o Banco Completo ou apenas um Tema específico. O sistema gerará um arquivo .json e o tablet fará o download automático para a pasta de arquivos do sistema.</li>
+                <li><strong>Importar:</strong> Se você for para outra escola ou trocar de tablet, basta clicar em "Importar", selecionar o ficheiro .json e o sistema mesclará as perguntas automaticamente.</li>
+            </ul>
+
+            <h3>📱 Usabilidade no Android (Tablet ou Celular)</h3>
+            <p>O Quiz de História Pro foi otimizado para a experiência móvel:</p>
+            <ul>
+                <li><strong>Offline:</strong> Uma vez que o ficheiro .html esteja salvo no dispositivo, não é necessária internet para jogar, editar ou importar questões.</li>
+                <li><strong>Salvamento Automático (LocalStorage):</strong> O Android armazena todas as suas alterações na memória interna do navegador. Se você fechar o navegador, ao retornar, seu progresso de edição estará intacto.</li>
+                <li><strong>Toque Preciso:</strong> A interface responsiva adapta-se ao tamanho da tela. Em tablets, o layout mantém o placar fixo à esquerda; em celulares, ele ajusta-se para garantir que os botões de resposta sejam grandes e fáceis de tocar.</li>
+            </ul>
+            <p><em>Dica de mestre: Mantenha uma cópia dos seus arquivos .json no Google Drive. Assim, se precisar trocar de tablet, terá o seu banco de questões sempre disponível em poucos segundos.</em></p>
+
+            <div style="background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin-top: 20px; border-radius: 4px;">
+                <h4 style="margin-top: 0; color: #856404;">⚠️ ATENÇÃO</h4>
+                <p style="color: #856404; margin-bottom: 10px;">O arquivo .html é só o motor do jogo (a estrutura, o visual, as regras). As perguntas que você cria ficam na memória do navegador. E os arquivos .json que você exporta são o seu verdadeiro banco de dados (os cartuchos de jogo) que você guarda para não perder nada, então após criar um tema e os desafios, exporte para sua segurança e importe quando conveniente.</p>
+                <p style="color: #856404; margin-bottom: 10px;">Se você quiser que uma pergunta nova faça parte do arquivo .html para sempre (sem precisar importar), aí sim você precisaria abrir o .html no Bloco de Notas e digitar o código lá dentro. Mas, com o sistema de exportar/importar .json que criamos, você não vai precisar mexer em código.</p>
+                <p style="color: #856404; margin-bottom: 0;">Se preferir agilizar a criação de conteúdos (temas) e os desafios, pode solicitar para a IA montar em arquivo JSON (DICA: envie um modelo exportado para a IA analisar a estrutura do código JSON). Após ela montar, basta fazer o download (ou copiar o código e colar em um Bloco de Notas ou NotePad++ e salvar com o nome do "conteúdo.json" seguindo o formato, exemplo (IDADE_MEDIA.json).</p>
+            </div>
+
+            <p style="margin-top: 20px;">Lembre de solicitar os critérios:</p>
+            <ul>
+                <li>Dificuldades misturadas (fácil, média e difícil).</li>
+                <li>Todas valem 1 ponto. (ou pontuar de acordo com o nível de dificuldade, porém toda dificuldade valer 1 torna mais justo)</li>
+                <li>Ordem totalmente aleatória.</li>
+            </ul>
+
+            <h3>🤖 Prompt para IA</h3>
+            <div class="prompt-box">"Atue como um especialista em pedagogia e desenvolvimento de jogos educativos. Com base na estrutura JSON que estamos utilizando em nosso projeto, crie um novo arquivo JSON para um quiz educacional sobre o tema: [INSERIR O TEMA AQUI].
+
+Regras rigorosas para a criação:
+1. Mantenha exatamente a mesma estrutura de chaves do nosso projeto. Cada objeto dentro da lista perguntas deve obrigatoriamente conter:
+   - conteudo: (String) O tema da pergunta.
+   - pergunta: (String) O enunciado.
+   - nivel: (String) 'Fácil', 'Médio' ou 'Difícil'.
+   - pontos: (Number) Valor da pontuação (ex: 1).
+   - correta: (Number) O índice da alternativa correta (0 a 3).
+   - dica: (String) Uma breve dica.
+   - explicacao: (String) Breve explicação pedagógica.
+   - alternativas: (Array com 4 Strings).
+2. Crie [INSERIR NÚMERO DE PERGUNTAS] perguntas equilibradas entre os níveis.
+3. Certifique-se de que o JSON esteja validado e sem erros de sintaxe, pronto para ser lido pelo localStorage do nosso jogo.
+
+Apresente o código final dentro de um bloco de código."</div>
+
+            <h3>Dicas para obter os melhores resultados:</h3>
+            <ul>
+                <li><strong>Seja Específico:</strong> Quanto mais detalhes você der no campo [INSERIR O TEMA AQUI] (ex: "A Revolução Industrial" ou "O Período Regencial Brasileiro"), melhor será o conteúdo das perguntas.</li>
+                <li><strong>Adaptação do Público:</strong> Se você quiser que o quiz seja para uma faixa etária específica (ex: Ensino Fundamental II ou Médio), adicione essa instrução ao prompt, e eu ajustarei a linguagem e a complexidade das perguntas para você.</li>
+            </ul>
+
+            <button class="fechar-botao-rodape" style="background-color: var(--error); color: white; margin-top: 25px; padding: 15px; width: 100%; font-size: 1.2em;">Fechar Guia Prático</button>
         </div>
     </div>
 
@@ -1096,6 +1336,36 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
             atualizarSelectQuestoesEditor();
         }
     }
+
+    // --- Lógica dos Modais de Termos e Guia ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalTermos = document.getElementById("modalTermos");
+        const modalGuia = document.getElementById("modalGuia");
+        
+        if (document.getElementById("btnAbrirTermos")) {
+            document.getElementById("btnAbrirTermos").onclick = function() { modalTermos.style.display = "block"; }
+        }
+        if (document.getElementById("btnAbrirGuia")) {
+            document.getElementById("btnAbrirGuia").onclick = function() { modalGuia.style.display = "block"; }
+        }
+        
+        function fecharModais() {
+            modalTermos.style.display = "none";
+            modalGuia.style.display = "none";
+        }
+
+        const botoesFecharX = document.querySelectorAll(".fechar-modal-x");
+        botoesFecharX.forEach(btn => { btn.onclick = fecharModais; });
+
+        const botoesFecharRodape = document.querySelectorAll(".fechar-botao-rodape");
+        botoesFecharRodape.forEach(btn => { btn.onclick = fecharModais; });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == modalTermos || event.target == modalGuia) {
+                fecharModais();
+            }
+        });
+    });
 
     // --- JSON IMPORT & EXPORT ---
     function atualizarSelectExportarMenu() {
